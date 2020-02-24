@@ -7,81 +7,45 @@ namespace Files
 	class Program
 	{
 
-		static void Main(string[] args)
-		{
-			string rootPath = @"..\..\..\Dirs";
-			Directory.SetCurrentDirectory(rootPath);
+        static void Main(string[] args)
+        {
+            string sourceDirectory = @"C:\temp\source";
+            string targetDirectory = @"C:\temp\destination";
 
+            Copy(sourceDirectory, targetDirectory);
 
-			FileStream fileStream = new FileStream(@".\a.txt", FileMode.Open, FileAccess.ReadWrite);
+            Console.WriteLine("\r\nEnd of program");
+        }
 
-			StreamWriter streamWriter = new StreamWriter(fileStream); // stream writer не наследуется от стрима, но композирует его, получая доступ к его интерфейсу и возможность работать с ним и за счет этого мы получаем возможность работать со стримом через стримрайтер
+        public static void Copy(string sourceDirectory, string targetDirectory)
+        {
+            var diSource = new DirectoryInfo(sourceDirectory);
+            var diTarget = new DirectoryInfo(targetDirectory);
 
-			streamWriter.Write("abcde");
-			streamWriter.Flush();
+            CopyAll(diSource, diTarget);
+        }
 
-			//streamWriter.Close();
+        public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            Directory.CreateDirectory(target.FullName);
 
-			fileStream.Position = 0;
+            // Copy each file into the new directory.
+            foreach (FileInfo fi in source.GetFiles())
+            {
+                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+            }
 
-			StreamReader streamReader = new StreamReader(fileStream);
-			string readString = streamReader.ReadLine();
+            // Copy each subdirectory using recursion.
+            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            {
+                DirectoryInfo nextTargetSubDir =
+                    target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
+        }
 
-			Console.WriteLine(readString);
-
-			//Directory.CreateDirectory(@".\dir3\dir4");
-			//Console.WriteLine(Directory.Exists(@".\dir5"));
-
-			//Directory.Delete(@".\dir5");
-
-			//var dirs = Directory.EnumerateDirectories(".", ".", SearchOption.AllDirectories);
-			//foreach (var dir in dirs)
-			//{
-			//	Console.WriteLine(dir);
-			//}
-
-
-			//var files = Directory.EnumerateFiles(".", ".", SearchOption.AllDirectories);
-			//foreach (var f in files)
-			//{
-			//	var lastModified = Directory.GetLastWriteTime(f);
-
-			//	var parentDir = Directory.GetParent(f);
-			//	Console.WriteLine($"{ f }, last modified: { lastModified }");
-			//	Console.WriteLine($"Parent dir: { parentDir.FullName }, { parentDir.Attributes }, { parentDir.LastWriteTime }");
-
-			//	Console.WriteLine();
-			//	Console.WriteLine();
-			//}
-
-			//File.WriteAllText(@"./b.txt", "rjif");
-
-			//File.AppendAllLines(@"./b.txt", new string[] { "line1", "line2" });
-			//File.Copy("./b.txt", "./dir2/b.txt", true);
-
-			//File.Create("./b.txt", 20, FileOptions.RandomAccess);
-
-			//byte[] bytes = File.ReadAllBytes("./b.txt");
-			//PrintCollection(bytes);
-
-			//string str = File.ReadAllText("./b.txt");
-			//Console.WriteLine(str);
-
-			//DirectoryInfo directoryInfo = new DirectoryInfo(".");
-			//DirectoryInfo[] fileSystemInfos =  directoryInfo.GetDirectories();
-
-			StreamReader streamReader = new StreamReader(@"./b.txt");
-			//Console.WriteLine((char)streamReader.Read());
-			//Console.WriteLine((char)streamReader.Read());
-			//Console.WriteLine((char)streamReader.Read());
-			//Console.WriteLine((char)streamReader.Read());
-			//Console.WriteLine((char)streamReader.Read());
-
-			var stream = new FileStream(@".\b.txt", FileMode.Open);
-
-		}
-
-		static void PrintCollection(IEnumerable c)
+        static void PrintCollection(IEnumerable c)
 		{
 			foreach (var item in c)
 			{
