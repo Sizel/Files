@@ -17,11 +17,16 @@ namespace Files_SyncFolders
 			Directory.SetCurrentDirectory(rootPath);
 
 			var dir1 = new DirectoryInfo(@".\dir1");
-			var filesDir1 = dir1.GetFiles("*", SearchOption.TopDirectoryOnly);
-
-			Directory.CreateDirectory()
-
 			var dir2 = new DirectoryInfo(@".\dir2");
+
+
+
+			MakeDirsIdentical(dir1, dir2);
+		}
+
+		static void MakeDirsIdentical(DirectoryInfo dir1, DirectoryInfo dir2)
+		{
+			var filesDir1 = dir1.GetFiles("*", SearchOption.TopDirectoryOnly);
 			var filesDir2 = dir2.GetFiles("*", SearchOption.TopDirectoryOnly);
 
 			#region Copy
@@ -41,8 +46,51 @@ namespace Files_SyncFolders
 				file.Delete();
 			}
 			#endregion
+
+			var subdirsDir1 = dir1.GetDirectories();
+			var subdirsDir2 = dir2.GetDirectories();
+
+			var dirsToCopy = subdirsDir1.Except(subdirsDir2, new DirectoryInfoEqualityComparer());
+
+			foreach (var dir in dirsToCopy)
+			{
+				CopyAll(dir, dir2);
+			}
+
+			var dirsToDelete = subdirsDir2.Except(subdirsDir1, new DirectoryInfoEqualityComparer());
+
+			foreach (var dir in dirsToDelete)
+			{
+				dir.Delete(true);
+			}
+
+			var identicalDirs = subdirsDir1.Intersect(subdirsDir2, new DirectoryInfoEqualityComparer());
+
+			foreach (var dir in identicalDirs)
+			{
+				MakeDirsIdentical(dir, )
+			}
 		}
 
+		static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+		{
+			Directory.CreateDirectory(target.FullName);
+
+			// Copy each file into the new directory.
+			foreach (FileInfo fi in source.GetFiles())
+			{
+				Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+				fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+			}
+
+			// Copy each subdirectory using recursion.
+			foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+			{
+				DirectoryInfo nextTargetSubDir =
+					target.CreateSubdirectory(diSourceSubDir.Name);
+				CopyAll(diSourceSubDir, nextTargetSubDir);
+			}
+		}
 
 		static void PrintCollection(IEnumerable c)
 		{
@@ -54,24 +102,11 @@ namespace Files_SyncFolders
 		}
 	}
 
-	class FsInfoEqualityComparer : IEqualityComparer<FileSystemInfo>
-	{
-		public bool Equals([AllowNull] FileSystemInfo x, [AllowNull] FileSystemInfo y)
-		{
-			return x.GetHashCode() == y.GetHashCode();
-		}
-
-		public int GetHashCode([DisallowNull] FileSystemInfo obj)
-		{
-			return obj.GetHashCode();
-		}
-	}
-
 	class FileInfoEqualityComparer : IEqualityComparer<FileInfo>
 	{
 		public bool Equals([AllowNull] FileInfo x, [AllowNull] FileInfo y)
 		{
-			return GetHashCode(x) == GetHashCode(y);
+			return GetHashCode(x) == GetHashCode(y) && x.Name.Equals(y.Name);
 		}
 
 		public int GetHashCode([DisallowNull] FileInfo file)
@@ -85,6 +120,19 @@ namespace Files_SyncFolders
 			fileStream.Close(); // why is the stream not closed automaticly after return?
 
 			return BitConverter.ToInt32(hash, 0);
+		}
+	}
+
+	class DirectoryInfoEqualityComparer : IEqualityComparer<DirectoryInfo>
+	{
+		public bool Equals([AllowNull] DirectoryInfo x, [AllowNull] DirectoryInfo y)
+		{
+			return x.Name.Equals(y.Name);
+		}
+
+		public int GetHashCode([DisallowNull] DirectoryInfo obj)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
