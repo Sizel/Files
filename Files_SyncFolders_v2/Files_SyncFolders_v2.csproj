@@ -6,13 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Dirs\dir2\sub2\**" />
-    <EmbeddedResource Remove="Dirs\dir2\sub2\**" />
-    <None Remove="Dirs\dir2\sub2\**" />
+    <Compile Remove="Dirs\dir2\sub1\subsub1\**" />
+    <EmbeddedResource Remove="Dirs\dir2\sub1\subsub1\**" />
+    <None Remove="Dirs\dir2\sub1\subsub1\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dirs\dir2\sub1\" />
+    <Folder Include="Dirs\dir1\sub1\subsub1\" />
   </ItemGroup>
 
 </Project>

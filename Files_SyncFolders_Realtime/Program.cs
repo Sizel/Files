@@ -7,7 +7,7 @@ using System.Text;
 using System.Security.Cryptography;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Files_SyncFolders
+namespace Files_SyncFolders_Realtime
 {
 	class Program
 	{
@@ -16,99 +16,67 @@ namespace Files_SyncFolders
 			string rootPath = @"..\..\..\Dirs";
 			Directory.SetCurrentDirectory(rootPath);
 
-			var startingDir1 = new DirectoryInfo(@".\dir1");
-			var startingDir2 = new DirectoryInfo(@".\dir2");
+			var dir1 = new DirectoryInfo(@".\dir1");
+			var dir2 = new DirectoryInfo(@".\dir2");
 
-			MakeDirsIdentical(startingDir1, startingDir2);
+
+			MakeDirsIdentical(dir1, dir2);
 		}
 
 		static void MakeDirsIdentical(DirectoryInfo dir1, DirectoryInfo dir2)
 		{
-
-			#region Copy files
-
 			var filesDir1 = dir1.GetFiles("*", SearchOption.TopDirectoryOnly);
 			var filesDir2 = dir2.GetFiles("*", SearchOption.TopDirectoryOnly);
 
-			// Get files from dir1 that don't exist in dir2 and copy them to dir2
+			#region Copy
 			var filesToCopy = filesDir1.Except(filesDir2, new FileInfoEqualityComparer());
 
 			foreach (var file in filesToCopy)
 			{
-				Console.WriteLine($@"Copying { file.Name } from { dir1.FullName } to { dir2.FullName }");
-				Console.WriteLine();
-
 				file.CopyTo(@$"{ dir2.FullName }\{ file.Name }", true);
 			}
 			#endregion
 
-			#region Delete files
-			// Get files from dir2 that don't exist in dir1 and delete them
+			#region Delete
 			var filesToDelete = filesDir2.Except(filesDir1, new FileInfoEqualityComparer());
 
 			foreach (var file in filesToDelete)
 			{
-				Console.WriteLine($"Deleting { file.FullName }");
-				Console.WriteLine();
-
 				file.Delete();
 			}
 			#endregion
 
-			#region Copy subdirs
-
 			var subdirsDir1 = dir1.GetDirectories();
 			var subdirsDir2 = dir2.GetDirectories();
 
-			// Get subdirectories in dir1 that don't exist in dir2
-			var subdirsToCopy = subdirsDir1.Except(subdirsDir2, new DirectoryInfoEqualityComparer());
+			var dirsToCopy = subdirsDir1.Except(subdirsDir2, new DirectoryInfoEqualityComparer());
 
-			// and copy them to dir2
-			foreach (var subdir in subdirsToCopy)
+			foreach (var dir in dirsToCopy)
 			{
-				Console.WriteLine($"Copying { subdir.Name } from { subdir.FullName } to { dir2.FullName }");
-				Console.WriteLine();
-
-				var subdirTarget = dir2.CreateSubdirectory(subdir.Name);
-
-				CopyAll(subdir, subdirTarget);
+				var subdirToCopyTo = dir2.CreateSubdirectory(dir.Name);
+				CopyAll(dir, subdirToCopyTo);
 			}
-			#endregion
 
-			#region Delete subdirs
-			
-			// Get subdirs in dir2 that don't exist in dir1
 			var dirsToDelete = subdirsDir2.Except(subdirsDir1, new DirectoryInfoEqualityComparer());
 
-			// Delete them
 			foreach (var dir in dirsToDelete)
 			{
-				Console.WriteLine($"Deleting { dir.FullName }");
-				Console.WriteLine();
-
 				dir.Delete(true);
 			}
-			#endregion
 
-			#region Run MakeDirsIdentical on the subdirs with the same name
+			var identicalDirs = subdirsDir1.Intersect(subdirsDir2, new DirectoryInfoEqualityComparer());
 
-			// Get names of identical subdirs
-			var identicalSubdirsNames = subdirsDir1.Intersect(subdirsDir2, new DirectoryInfoEqualityComparer()).Select(s => s.Name);
-
-			// Run MakeDirsIdentical recursively on each pair of subdirs with the same name
-			foreach (var subdirName in identicalSubdirsNames)
+			foreach (var dir in identicalDirs)
 			{
-				MakeDirsIdentical(new DirectoryInfo(@$"{ dir1.FullName }\{ subdirName }"), new DirectoryInfo(@$"{ dir2.FullName }\{ subdirName }"));
+				var identicalSubdirIndir1 = subdirsDir1.Where(s => s.Name.Equals(dir.Name));
+				var identicalSubdirIndir2 = subdirsDir2.Where(s => s.Name.Equals(dir.Name));
+				MakeDirsIdentical(identicalSubdirIndir1.First(), identicalSubdirIndir2.First());
 			}
-			#endregion
 		}
 
 		static void CopyAll(DirectoryInfo source, DirectoryInfo target)
 		{
-			if (!target.Exists)
-			{
-				Directory.CreateDirectory(target.FullName);
-			}
+			Directory.CreateDirectory(target.FullName);
 
 			// Copy each file into the new directory.
 			foreach (FileInfo fi in source.GetFiles())
@@ -124,16 +92,14 @@ namespace Files_SyncFolders
 			}
 		}
 
-		static void MyCopyAll(DirectoryInfo source, DirectoryInfo target)
+		static void PrintCollection(IEnumerable c)
 		{
-			var filesFromSource = source.GetFiles();
-
-			foreach (var file in filesFromSource)
+			foreach (var item in c)
 			{
-				file.CopyTo(target.FullName);
+				Console.WriteLine($"{ item } ");
 			}
+			Console.WriteLine();
 		}
-
 	}
 
 	class FileInfoEqualityComparer : IEqualityComparer<FileInfo>
@@ -166,7 +132,7 @@ namespace Files_SyncFolders
 
 		public int GetHashCode([DisallowNull] DirectoryInfo obj)
 		{
-			return obj.Name.GetHashCode();
+			return 0;
 		}
 	}
 }

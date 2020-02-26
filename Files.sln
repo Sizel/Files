@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Files_Test", "Files\Files_Test.csproj", "{F0952257-4447-4EBE-AD1E-EBAD48D40333}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Files_SyncFolders", "Files_SyncFolders\Files_SyncFolders.csproj", "{33F31FEC-55E8-4D62-851A-9E8EB74CA8C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Files_SyncFolders", "Files_SyncFolders\Files_SyncFolders.csproj", "{33F31FEC-55E8-4D62-851A-9E8EB74CA8C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Files_SyncFolders_Realtime", "Files_SyncFolders_Realtime\Files_SyncFolders_Realtime.csproj", "{1C4EB174-52BB-43A3-96AC-981C90802947}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{33F31FEC-55E8-4D62-851A-9E8EB74CA8C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33F31FEC-55E8-4D62-851A-9E8EB74CA8C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33F31FEC-55E8-4D62-851A-9E8EB74CA8C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C4EB174-52BB-43A3-96AC-981C90802947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C4EB174-52BB-43A3-96AC-981C90802947}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C4EB174-52BB-43A3-96AC-981C90802947}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C4EB174-52BB-43A3-96AC-981C90802947}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

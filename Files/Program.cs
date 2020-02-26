@@ -24,7 +24,7 @@ namespace Files
             var diSource = new DirectoryInfo(sourceDirectory);
             var diTarget = new DirectoryInfo(targetDirectory);
 
-            CopyAll(diSource, diTarget);
+            MyCopyAll(diSource, diTarget);
         }
 
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
@@ -44,6 +44,29 @@ namespace Files
                 DirectoryInfo nextTargetSubDir =
                     target.CreateSubdirectory(diSourceSubDir.Name);
                 CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
+        }
+
+        static void MyCopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            if (!target.Exists)
+            {
+                Directory.CreateDirectory(target.FullName);
+            }
+
+            var filesInSource = source.GetFiles();
+
+            foreach (var file in filesInSource)
+            {
+                file.CopyTo($@"{ target.FullName }\{ file.Name }", true);
+            }
+
+            var subdirsInSource = source.GetDirectories();
+
+            foreach (var subdir in subdirsInSource)
+            {
+                var subdirInTarger = target.CreateSubdirectory(subdir.Name);
+                MyCopyAll(subdir, subdirInTarger);
             }
         }
 
