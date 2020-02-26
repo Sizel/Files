@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text;
-using System.Security.Cryptography;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Files_SyncFolders
 {
@@ -124,49 +119,10 @@ namespace Files_SyncFolders
 			}
 		}
 
-		static void MyCopyAll(DirectoryInfo source, DirectoryInfo target)
-		{
-			var filesFromSource = source.GetFiles();
-
-			foreach (var file in filesFromSource)
-			{
-				file.CopyTo(target.FullName);
-			}
-		}
 
 	}
 
-	class FileInfoEqualityComparer : IEqualityComparer<FileInfo>
-	{
-		public bool Equals([AllowNull] FileInfo x, [AllowNull] FileInfo y)
-		{
-			return GetHashCode(x) == GetHashCode(y) && x.Name.Equals(y.Name);
-		}
+	
 
-		public int GetHashCode([DisallowNull] FileInfo file)
-		{
-			SHA256 sha256 = SHA256.Create();
 
-			FileStream fileStream = file.OpenRead(); 
-				
-			byte[] hash = sha256.ComputeHash(fileStream);
-
-			fileStream.Close(); // why is the stream not closed automaticly after return?
-
-			return BitConverter.ToInt32(hash, 0);
-		}
-	}
-
-	class DirectoryInfoEqualityComparer : IEqualityComparer<DirectoryInfo>
-	{
-		public bool Equals([AllowNull] DirectoryInfo x, [AllowNull] DirectoryInfo y)
-		{
-			return x.Name.Equals(y.Name);
-		}
-
-		public int GetHashCode([DisallowNull] DirectoryInfo obj)
-		{
-			return obj.Name.GetHashCode();
-		}
-	}
 }
